@@ -14,17 +14,20 @@ class AnimationTestState extends State<AnimationTest>
   double _opacity2 = 0.0;
   double _opacity3 = 0.0;
   double _opacity4 = 0.0;
+  double _buttonOpacity = 0.0;
+  final Duration _durationTime = Duration(milliseconds: 500);
 
   final Offset _offset1 = const Offset(0, 1);
   final Offset _offset2 = const Offset(0, 1);
   final Offset _offset3 = const Offset(0, 1);
 
-  bool _isMovingStar = false;
+  bool _isMoingButtonStar = false;
 
   late AnimationController _animationController1;
   late AnimationController _animationController2;
   late AnimationController _animationController3;
   late AnimationController _floatingController;
+  late AnimationController _buttonAnimationController;
 
   late Animation<double> _floatingAnimation;
 
@@ -32,6 +35,8 @@ class AnimationTestState extends State<AnimationTest>
   late Function(GlobalKey) runAddToCartAnimation;
   final GlobalKey startKey = GlobalKey();
   var _cartQuantityItems = 0;
+
+  double get widthOfStatusBar => MediaQuery.of(context).size.width * 0.6;
 
   @override
   void initState() {
@@ -57,6 +62,11 @@ class AnimationTestState extends State<AnimationTest>
       duration: const Duration(seconds: 2),
     )..repeat(reverse: true);
 
+    _buttonAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    );
+
     _floatingAnimation = Tween<double>(begin: -10.0, end: 10.0).animate(
       CurvedAnimation(parent: _floatingController, curve: Curves.easeInOut),
     );
@@ -70,40 +80,47 @@ class AnimationTestState extends State<AnimationTest>
     _animationController2.dispose();
     _animationController3.dispose();
     _floatingController.dispose();
+    _buttonAnimationController.dispose();
     super.dispose();
   }
 
   void _startAnimation() async {
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
     setState(() {
       _opacity1 = 1.0;
       _animationController1.forward();
     });
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
     setState(() {
       _opacity2 = 1.0;
       _animationController2.forward();
     });
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
     setState(() {
       _opacity3 = 1.0;
       _animationController3.forward();
     });
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
 
     await _startStarAnimation(startKey);
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
     setState(() {
-      _isMovingStar = true;
+      _isMoingButtonStar = true;
     });
 
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(_durationTime);
     setState(() {
       _opacity4 = 1.0;
+    });
+
+    await Future.delayed(_durationTime);
+    setState(() {
+      _buttonOpacity = 1.0;
+      _buttonAnimationController.forward();
     });
   }
 
@@ -117,9 +134,8 @@ class AnimationTestState extends State<AnimationTest>
       dragAnimation: const DragToCartAnimationOptions(
         rotation: true,
       ),
-      jumpAnimation: const JumpAnimationOptions(),
+      jumpAnimation: const JumpAnimationOptions(active: false),
       createAddToCartAnimation: (runAddToCartAnimation) {
-        // You can run the animation by addToCartAnimationMethod, just pass through the the global key of the image as parameter
         this.runAddToCartAnimation = runAddToCartAnimation;
       },
       child: Scaffold(
@@ -155,9 +171,10 @@ class AnimationTestState extends State<AnimationTest>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
+                    const Spacer(),
                     AnimatedOpacity(
                       opacity: _opacity1,
-                      duration: const Duration(seconds: 1),
+                      duration: _durationTime,
                       child: SlideTransition(
                         position: _animationController1.drive(
                           Tween<Offset>(begin: _offset1, end: Offset.zero)
@@ -177,7 +194,7 @@ class AnimationTestState extends State<AnimationTest>
                     const SizedBox(height: 20),
                     AnimatedOpacity(
                       opacity: _opacity4,
-                      duration: const Duration(seconds: 1),
+                      duration: _durationTime,
                       child: const Text(
                         "Fantastic progress",
                         style: TextStyle(
@@ -190,7 +207,7 @@ class AnimationTestState extends State<AnimationTest>
                     const SizedBox(height: 20),
                     AnimatedOpacity(
                       opacity: _opacity2,
-                      duration: const Duration(seconds: 1),
+                      duration: _durationTime,
                       child: SlideTransition(
                         position: _animationController2.drive(
                           Tween<Offset>(begin: _offset2, end: Offset.zero)
@@ -200,7 +217,7 @@ class AnimationTestState extends State<AnimationTest>
                         ),
                         child: TweenAnimationBuilder<double>(
                           tween: Tween<double>(begin: 0.0, end: 1.0),
-                          duration: const Duration(seconds: 1),
+                          duration: _durationTime,
                           builder: (BuildContext context, double value,
                               Widget? child) {
                             return Transform.translate(
@@ -226,9 +243,9 @@ class AnimationTestState extends State<AnimationTest>
                                   ),
                                 ),
                                 const Icon(Icons.star,
-                                    color: Colors.yellow, size: 50),
+                                    color: Colors.grey, size: 50),
                                 const Icon(Icons.star,
-                                    color: Colors.yellow, size: 50),
+                                    color: Colors.grey, size: 50),
                               ],
                             ),
                           ),
@@ -238,7 +255,7 @@ class AnimationTestState extends State<AnimationTest>
                     const SizedBox(height: 20),
                     AnimatedOpacity(
                       opacity: _opacity3,
-                      duration: const Duration(seconds: 1),
+                      duration: _durationTime,
                       child: SlideTransition(
                         position: _animationController3.drive(
                           Tween<Offset>(begin: _offset3, end: Offset.zero)
@@ -250,17 +267,30 @@ class AnimationTestState extends State<AnimationTest>
                           decoration: _boxDecorationContainer,
                           height: 100,
                           child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Expanded(
-                                child: Container(
-                                  height: 5,
-                                  color: Colors.red,
-                                ),
+                              Stack(
+                                children: [
+                                  Container(
+                                    width: widthOfStatusBar,
+                                    height: 5,
+                                    color: Colors.grey,
+                                  ),
+                                  AnimatedContainer(
+                                    width: (widthOfStatusBar / 3) *
+                                        _cartQuantityItems,
+                                    height: 5,
+                                    color: Colors.blue,
+                                    duration: _durationTime,
+                                    curve: Curves.easeInOut,
+                                  ),
+                                ],
                               ),
+                              const SizedBox(width: 10),
                               AddToCartIcon(
                                 key: cartKey,
                                 icon: const Icon(Icons.star,
-                                    color: Colors.yellow, size: 50),
+                                    color: Colors.yellow, size: 40),
                                 badgeOptions: const BadgeOptions(
                                   active: true,
                                   backgroundColor: Colors.red,
@@ -271,44 +301,78 @@ class AnimationTestState extends State<AnimationTest>
                         ),
                       ),
                     ),
+                    const Spacer(),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey.withOpacity(0.3),
+                      ),
+                      width: 40,
+                      height: 40,
+                      child: const Center(child: Icon(Icons.share)),
+                    ),
+                    const Spacer(),
                     SizedBox(
-                      width: 200,
-                      height: 350,
+                      height: 250,
                       child: Stack(
                         children: <Widget>[
                           AnimatedPositioned(
-                            width: _isMovingStar ? 200.0 : 0,
-                            height: _isMovingStar ? 50.0 : 0,
-                            top: _isMovingStar ? 50.0 : 0,
-                            duration: const Duration(seconds: 2),
+                            width: _isMoingButtonStar
+                                ? MediaQuery.of(context).size.width - 47
+                                : 0,
+                            height: _isMoingButtonStar ? 85 : 0,
+                            top: _isMoingButtonStar ? 50.0 : 0,
+                            duration: const Duration(seconds: 1),
                             curve: Curves.fastOutSlowIn,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                if (_isMovingStar)
+                            child: AnimatedOpacity(
+                              opacity: _buttonOpacity,
+                              duration: _durationTime,
+                              child: Column(
+                                children: [
                                   AnimatedBuilder(
                                     animation: _floatingAnimation,
                                     builder: (context, child) {
                                       return Transform.translate(
                                         offset:
                                             Offset(0, _floatingAnimation.value),
-                                        child: const Tooltip(
-                                          message: "Hovering Tooltip",
+                                        child: const Align(
+                                          alignment: Alignment.topLeft,
+                                          child: SpeechBubbleWidget(),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () => Navigator.pop(context),
+                                        child: const Padding(
+                                          padding: EdgeInsets.only(left: 15),
                                           child: ColoredBox(
                                             color: Colors.blue,
                                             child:
                                                 Center(child: Text('Redesign')),
                                           ),
                                         ),
-                                      );
-                                    },
+                                      ),
+                                      const Spacer(),
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: const ColoredBox(
+                                          color: Colors.red,
+                                          child:
+                                              Center(child: Text('Continue')),
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                if (_isMovingStar)
-                                  const ColoredBox(
-                                    color: Colors.red,
-                                    child: Center(child: Text('Continue')),
-                                  )
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
@@ -336,4 +400,62 @@ class AnimationTestState extends State<AnimationTest>
     await cartKey.currentState!
         .runCartAnimation((++_cartQuantityItems).toString());
   }
+}
+
+class SpeechBubbleWidget extends StatelessWidget {
+  const SpeechBubbleWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Can you perfect\nyour design?",
+                style: TextStyle(
+                  fontSize: 10,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(
+          width: 15,
+          height: 7,
+          child: CustomPaint(
+            painter: TrianglePainter(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class TrianglePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.red
+      ..style = PaintingStyle.fill; // Changed style to fill for solid triangle
+
+    final path = Path();
+    path.moveTo(0, 0); // Move to the top left
+    path.lineTo(size.width, 0); // Draw line to top right
+    path.lineTo(size.width / 2, size.height); // Draw line to bottom center
+    path.close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }

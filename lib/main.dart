@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Flutter Painter Example",
       theme: ThemeData(primaryColor: Colors.brown),
-      home: AnimationTest(),
+      home: const FlutterPainterExample(),
     );
   }
 }
@@ -143,7 +143,14 @@ class FlutterPainterExampleState extends State<FlutterPainterExample> {
         ),
         // Generate image
         floatingActionButton: FloatingActionButton(
-          onPressed: saveImageToGallery,
+          onPressed: () {
+            saveImageToGallery().then((_) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AnimationTest()),
+              );
+            });
+          },
           child: const Icon(Icons.save),
         ),
         body: Stack(
