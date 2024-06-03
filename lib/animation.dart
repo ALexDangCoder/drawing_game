@@ -15,11 +15,12 @@ class AnimationTestState extends State<AnimationTest>
   double _opacity3 = 0.0;
   double _opacity4 = 0.0;
   double _buttonOpacity = 0.0;
-  final Duration _durationTime = Duration(milliseconds: 500);
+  final Duration _durationTime = const Duration(milliseconds: 500);
 
   final Offset _offset1 = const Offset(0, 1);
   final Offset _offset2 = const Offset(0, 1);
   final Offset _offset3 = const Offset(0, 1);
+  int totalStart = 3;
 
   bool _isMoingButtonStar = false;
 
@@ -36,7 +37,7 @@ class AnimationTestState extends State<AnimationTest>
   final GlobalKey startKey = GlobalKey();
   var _cartQuantityItems = 0;
 
-  double get widthOfStatusBar => MediaQuery.of(context).size.width * 0.6;
+  double get widthOfStatusBar => MediaQuery.of(context).size.width * 0.72;
 
   @override
   void initState() {
@@ -237,14 +238,14 @@ class AnimationTestState extends State<AnimationTest>
                                 Container(
                                   key: startKey,
                                   child: const Icon(
-                                    Icons.star,
+                                    Icons.star_rate_rounded,
                                     color: Colors.yellow,
                                     size: 50,
                                   ),
                                 ),
-                                const Icon(Icons.star,
+                                const Icon(Icons.star_rate_rounded,
                                     color: Colors.grey, size: 50),
-                                const Icon(Icons.star,
+                                const Icon(Icons.star_rate_rounded,
                                     color: Colors.grey, size: 50),
                               ],
                             ),
@@ -266,50 +267,99 @@ class AnimationTestState extends State<AnimationTest>
                         child: Container(
                           decoration: _boxDecorationContainer,
                           height: 100,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Stack(
-                                children: [
-                                  Container(
-                                    width: widthOfStatusBar,
-                                    height: 5,
-                                    color: Colors.grey,
-                                  ),
-                                  AnimatedContainer(
-                                    width: (widthOfStatusBar / 3) *
-                                        _cartQuantityItems,
-                                    height: 5,
-                                    color: Colors.blue,
-                                    duration: _durationTime,
-                                    curve: Curves.easeInOut,
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 10),
-                              AddToCartIcon(
-                                key: cartKey,
-                                icon: const Icon(Icons.star,
-                                    color: Colors.yellow, size: 40),
-                                badgeOptions: const BadgeOptions(
-                                  active: true,
-                                  backgroundColor: Colors.red,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: widthOfStatusBar,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.max,
+                                        children: [
+                                          const Text("NEXT MILESTONE"),
+                                          const Spacer(),
+                                          Text(
+                                              "$_cartQuantityItems/$totalStart"),
+                                          AddToCartIcon(
+                                            key: cartKey,
+                                            icon: const Icon(
+                                              Icons.star_rate_rounded,
+                                              color: Colors.yellow,
+                                              size: 40,
+                                            ),
+                                            badgeOptions: const BadgeOptions(
+                                              active: false,
+                                              backgroundColor:
+                                                  Colors.transparent,
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Stack(
+                                      children: [
+                                        Container(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.grey,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4))),
+                                          width: widthOfStatusBar,
+                                          height: 5,
+                                        ),
+                                        AnimatedContainer(
+                                          decoration: const BoxDecoration(
+                                              color: Colors.blue,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(4))),
+                                          width:
+                                              (widthOfStatusBar / totalStart) *
+                                                  _cartQuantityItems,
+                                          height: 5,
+                                          duration: _durationTime,
+                                          curve: Curves.easeInOut,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                  ],
                                 ),
-                              ),
-                            ],
+                                const Icon(
+                                  Icons.monetization_on,
+                                  size: 40,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const Spacer(),
-                    Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey.withOpacity(0.3),
+                    AnimatedOpacity(
+                      opacity: _opacity3,
+                      duration: _durationTime,
+                      child: SlideTransition(
+                        position: _animationController3.drive(
+                          Tween<Offset>(begin: _offset3, end: Offset.zero)
+                              .chain(
+                            CurveTween(curve: Curves.easeInOut),
+                          ),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey.withOpacity(0.3),
+                          ),
+                          width: 40,
+                          height: 40,
+                          child: const Center(child: Icon(Icons.share)),
+                        ),
                       ),
-                      width: 40,
-                      height: 40,
-                      child: const Center(child: Icon(Icons.share)),
                     ),
                     const Spacer(),
                     SizedBox(
@@ -318,9 +368,9 @@ class AnimationTestState extends State<AnimationTest>
                         children: <Widget>[
                           AnimatedPositioned(
                             width: _isMoingButtonStar
-                                ? MediaQuery.of(context).size.width - 47
+                                ? MediaQuery.of(context).size.width - 34
                                 : 0,
-                            height: _isMoingButtonStar ? 85 : 0,
+                            height: _isMoingButtonStar ? 125 : 0,
                             top: _isMoingButtonStar ? 50.0 : 0,
                             duration: const Duration(seconds: 1),
                             curve: Curves.fastOutSlowIn,
@@ -343,18 +393,24 @@ class AnimationTestState extends State<AnimationTest>
                                     },
                                   ),
                                   const SizedBox(
-                                    height: 5,
+                                    height: 15,
                                   ),
                                   Row(
                                     children: [
                                       GestureDetector(
                                         onTap: () => Navigator.pop(context),
-                                        child: const Padding(
-                                          padding: EdgeInsets.only(left: 15),
-                                          child: ColoredBox(
-                                            color: Colors.blue,
-                                            child:
-                                                Center(child: Text('Redesign')),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  Colors.blue.withOpacity(0.8),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(16))),
+                                          margin:
+                                              const EdgeInsets.only(left: 6),
+                                          padding: const EdgeInsets.all(8),
+                                          child: const Center(
+                                            child: Text('Redesign'),
                                           ),
                                         ),
                                       ),
@@ -363,10 +419,19 @@ class AnimationTestState extends State<AnimationTest>
                                         onTap: () {
                                           Navigator.pop(context);
                                         },
-                                        child: const ColoredBox(
-                                          color: Colors.red,
-                                          child:
-                                              Center(child: Text('Continue')),
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                              color:
+                                                  Colors.red.withOpacity(0.8),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(16))),
+                                          margin:
+                                              const EdgeInsets.only(left: 6),
+                                          padding: const EdgeInsets.all(8),
+                                          child: const Center(
+                                            child: Text('Continue'),
+                                          ),
                                         ),
                                       )
                                     ],
@@ -410,29 +475,54 @@ class SpeechBubbleWidget extends StatelessWidget {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            color: Colors.red,
             borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Can you perfect\nyour design?",
-                style: TextStyle(
-                  fontSize: 10,
-                ),
-                textAlign: TextAlign.center,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                spreadRadius: 1,
+                blurRadius: 3,
+                offset: Offset(0, 3), // changes position of shadow
               ),
             ],
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.8),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Can you perfect\nyour design?",
+                  style: TextStyle(
+                    fontSize: 10,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           ),
         ),
         SizedBox(
           width: 15,
           height: 7,
-          child: CustomPaint(
-            painter: TrianglePainter(),
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                  offset: Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: CustomPaint(
+              painter: TrianglePainter(),
+            ),
           ),
         ),
       ],
@@ -444,7 +534,7 @@ class TrianglePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red
+      ..color = Colors.red.withOpacity(0.8)
       ..style = PaintingStyle.fill; // Changed style to fill for solid triangle
 
     final path = Path();

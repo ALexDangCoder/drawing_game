@@ -144,12 +144,11 @@ class FlutterPainterExampleState extends State<FlutterPainterExample> {
         // Generate image
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            saveImageToGallery().then((_) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AnimationTest()),
-              );
-            });
+            saveImageToGallery();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AnimationTest()),
+            );
           },
           child: const Icon(Icons.save),
         ),
